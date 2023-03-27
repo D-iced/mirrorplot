@@ -31,7 +31,7 @@ ymin = -0.2
 ymax = ymin+ysize
 x=[]
 y=[]
-
+ray_in=[[(),(),(),()]]
 #% function defines
 def phi_in(time):
     # time in hours, starting at 6 in the morning
@@ -65,6 +65,8 @@ def ray(pos,hour):
             msg = "vroeg"
         print(msg, "in de ochtend", phi_in(hour), phi_corner(pos))
     #if phi_in(hour)>phi_corner(pos) and
+
+
 #% run the sucker
 def main():
     t= [3]#range(6,18+1)
@@ -73,10 +75,17 @@ def main():
         for pos in d:
             x.append(pos)
             y.append(0)
+            ray_in.append([xmin,xmax,pos,0])
+    if ray_in[0][0]==():
+        print(ray_in)
+        ray_in.pop()
     return 1
+
 if __name__ == '__main__':
     main()
     plt.plot(x,y,'.')
+    for ray in ray_in:
+        plt.plot(ray[1])
     plt.xlim(xmin,xmax)
     plt.ylim(ymin,ymax)
     plt.show()
