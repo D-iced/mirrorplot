@@ -77,14 +77,15 @@ def main():
         for pos in d:
             x.append(pos)
             y.append(0)
-            ray_in.append([xmin,xmax,pos,0])
-    if ray_in[0][0]==():
-        print(ray_in)
-        ray_in.pop()
+            ray_in.append([xmin,ymax,pos,0])
+    
     return 1
 
 if __name__ == '__main__':
     main()
+    ray_in=ray_in[1:]
+    for i in ray_in:
+        print(f'{i}')
     plt.plot(x,y,'.')
     for ray in ray_in:
         plt.plot(ray)
