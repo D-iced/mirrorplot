@@ -68,7 +68,7 @@ def ray(pos,hour):
 #% run the sucker
 def main():
     t= [3]#range(6,18+1)
-    d = np.linspace(xmin, xmax, 5)
+    d = np.linspace(xmin, xmax, 9)
     for hour in t:
         for pos in d:
             x.append(pos)
@@ -79,3 +79,4 @@ if __name__ == '__main__':
     plt.plot(x,y,'.')
     plt.xlim(xmin,xmax)
     plt.ylim(ymin,ymax)
+    plt.show()
