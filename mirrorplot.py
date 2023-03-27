@@ -31,7 +31,7 @@ ymin = -0.2
 ymax = ymin+ysize
 x=[]
 y=[]
-ray_in=[[(),(),(),()]]
+ray_in=[[ymax,0,ymin,0]]
 #% function defines
 def phi_in(time):
     # time in hours, starting at 6 in the morning
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     main()
     plt.plot(x,y,'.')
     for ray in ray_in:
-        plt.plot(ray[1])
+        plt.plot(ray)
     plt.xlim(xmin,xmax)
     plt.ylim(ymin,ymax)
     plt.show()
