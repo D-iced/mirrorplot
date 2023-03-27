@@ -14,6 +14,8 @@ TODO:
 DONE:
     - nothing
 
+Als het goed is wel!
+
 """
 #% imports
 import numpy as np
