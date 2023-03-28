@@ -33,7 +33,8 @@ ymin = -0.2
 ymax = ymin+ysize
 x=[]
 y=[]
-ray_in=[[ymax,0,ymin,0]]
+ray_in=[]
+
 #% function defines
 def phi_in(time):
     # time in hours, starting at 6 in the morning
@@ -50,45 +51,69 @@ def phi_mirror(time, d=-10):
     return (phi_in(time) + phi_out(d))/2
 
 #% shape defines
-def phi_corner(pos):
-    #position is always at h=0
-    xoff=-xmin-pos
-    yoff= ysize+ymin
-    print(xoff, yoff)
-    return atan(xoff,yoff)
-
 def ray(pos,hour):
     #calc incoming ray bounds
-    ochtend = 0
-    if hour < 12:
-        msg = "laat"
-        if phi_in(hour)<phi_corner(pos) and ochtend == 1:
-        #calculate height
-            msg = "vroeg"
-        print(msg, "in de ochtend", phi_in(hour), phi_corner(pos))
-    #if phi_in(hour)>phi_corner(pos) and
+    #there are four bound situations
+    #incoming ray before noon
+    #    incoming ray, lower than top left
+    #    incoming ray, highre than top left
+    #incoming ray after noon
+    #    incoming ray, lower than top right
+    #    incoming ray, higher than top right
+    #so we need to know if <= noon, and then either
+    # topleft coordinates or
+    # topright coordinates
 
-
+    phi_r=phi_in(hour)
+    print('hier', hour, pos,phi_r*todeg)
+    if hour<=12:
+        dx=xmin-pos
+        dy=ymax
+        phi_c=atan(dx,dy)
+        print(phi_c*todeg)
+        if phi_r < phi_c:
+            xs=xmin
+            ys=dx/tan(phi_r)
+        else:
+            xs=pos+ymax*tan(phi_r)
+            ys=ymax
+    else: #after noon
+        dx=xmax-pos
+        dy=ymax
+        phi_c=atan(dx,dy)
+        if phi_r > phi_c:
+            xs=xmax
+            ys=dx/tan(phi_r)
+        else:
+            xs=pos+ymax*tan(phi_r)
+            ys=ymax
+    #print(xs,xe,ys,ye)
+    xe=pos
+    ye=0
+    return xs,xe,ys,ye
 #% run the sucker
 def main():
-    t= [3]#range(6,18+1)
+    t= range(6,18+1)
     d = np.linspace(xmin, xmax, 9)
+    #d= [-1]
     for hour in t:
+        print(phi_in(hour)*todeg)
         for pos in d:
             x.append(pos)
             y.append(0)
-            ray_in.append([xmin,ymax,pos,0])
+            #ray_in.append([xmin,pos,ymax,0])
+            ray_in.append(ray(pos,hour))
     
     return 1
 
 if __name__ == '__main__':
     main()
-    ray_in=ray_in[1:]
+    #ray_in=ray_in[1:]
     for i in ray_in:
         print(f'{i}')
     plt.plot(x,y,'.')
     for ray in ray_in:
-        plt.plot(ray)
+        plt.plot(ray[0:2],ray[2:])
     plt.xlim(xmin,xmax)
     plt.ylim(ymin,ymax)
     plt.show()
