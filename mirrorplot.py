@@ -28,13 +28,50 @@ todeg=180/pi
 xsize = 3
 xmin = -1.5
 xmax = xmin+xsize
-ysize = 3
-ymin = -0.2
+ysize = 1.5
+ymin = -0.4
 ymax = ymin+ysize
 def rot(point,alpha):
     R=np.array([[np.cos(alpha), np.sin(alpha)],
                 [-np.sin(alpha), np.cos(alpha)]])
     return R@point
+def ray(pos,phi_r):
+    #calc incoming ray bounds
+    #there are four bound situations
+    #incoming ray before noon
+    #    incoming ray, lower than top left
+    #    incoming ray, highre than top left
+    #incoming ray after noon
+    #    incoming ray, lower than top right
+    #    incoming ray, higher than top right
+    #so we need to know if <= noon, and then either
+    # topleft coordinates or
+    # topright coordinates
+
+
+    #print('hier', hour, pos,phi_r*todeg)
+    if phi_r<=0:
+        dx=xmin-pos
+        dy=ymax
+        phi_c=atan(dx,dy)
+        #print(phi_c*todeg)
+        if phi_r < phi_c:
+            xs=xmin
+            ys=dx/tan(phi_r)
+        else:
+            xs=pos+ymax*tan(phi_r)
+            ys=ymax
+    else: #after noon
+        dx=xmax-pos
+        dy=ymax
+        phi_c=atan(dx,dy)
+        if phi_r > phi_c:
+            xs=xmax
+            ys=dx/tan(phi_r)
+        else:
+            xs=pos+ymax*tan(phi_r)
+            ys=ymax
+    return xs,ys
     
 class mirror:
     def __init__(self, pos=None, angle = None):
@@ -62,9 +99,14 @@ class mirror:
     def plot(self):
         xs=[m[0] for m in self.pose]
         ys=[m[1] for m in self.pose]
+        rayin = ray(self.x,self.angle)
+        rfx=rayin[0]
+        rfy=rayin[1]
+        plt.plot([rfx,self.x],[rfy,0])
         plt.plot(xs,ys)
-
-
+        plt.gca().set_aspect('equal')
+    #reflect=np.array([1,0])
+    
 x=[]
 y=[]
 ray_in=[]
@@ -85,46 +127,6 @@ def phi_mirror(time, d=-10):
     return (phi_in(time) + phi_out(d))/2
 
 #% shape defines
-def ray(pos,hour):
-    #calc incoming ray bounds
-    #there are four bound situations
-    #incoming ray before noon
-    #    incoming ray, lower than top left
-    #    incoming ray, highre than top left
-    #incoming ray after noon
-    #    incoming ray, lower than top right
-    #    incoming ray, higher than top right
-    #so we need to know if <= noon, and then either
-    # topleft coordinates or
-    # topright coordinates
-
-    phi_r=phi_in(hour)
-    #print('hier', hour, pos,phi_r*todeg)
-    if hour<=12:
-        dx=xmin-pos
-        dy=ymax
-        phi_c=atan(dx,dy)
-        #print(phi_c*todeg)
-        if phi_r < phi_c:
-            xs=xmin
-            ys=dx/tan(phi_r)
-        else:
-            xs=pos+ymax*tan(phi_r)
-            ys=ymax
-    else: #after noon
-        dx=xmax-pos
-        dy=ymax
-        phi_c=atan(dx,dy)
-        if phi_r > phi_c:
-            xs=xmax
-            ys=dx/tan(phi_r)
-        else:
-            xs=pos+ymax*tan(phi_r)
-            ys=ymax
-    #print(xs,xe,ys,ye)
-    xe=pos
-    ye=0
-    return xs,xe,ys,ye
 #% run the sucker
 def main():
     t= range(6,18+1)
