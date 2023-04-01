@@ -75,13 +75,14 @@ def ray(pos,phi_r):
     
 class mirror:
     def __init__(self, pos=None, angle = None):
-        if pos == None:
-            self.pos = 0
-        if angle == None:
-            self.angle = 0
-        self.angle = angle
         self.x=pos
+        self.angle = angle
+        if pos == None:
+            self.x = 0
+        if angle == None:
+            self.angle = (atan(self.x,1)*2-atan(self.x,1))/2
         self.y=0
+        
         w=xmax/10
         h=0.01
         base=[-w/2,w/2,-h/2,h/2] #bl corner and tr corner
@@ -91,7 +92,7 @@ class mirror:
                  np.array([base[1],base[2]]),
                  np.array([base[0],base[2]])]
         self.shape=[rot(corner,self.angle) for corner in corners]
-        self.pose=self.shape+np.array([pos,0])
+        self.pose=self.shape+np.array([self.x,0])
     def update(self):
         corners=self.shape
         self.shape=[rot(corner,self.angle) for corner in corners]
@@ -99,9 +100,11 @@ class mirror:
     def plot(self):
         xs=[m[0] for m in self.pose]
         ys=[m[1] for m in self.pose]
-        rayin = ray(self.x,self.angle)
+        rayin = ray(self.x,atan(self.x,1)*2)
         rfx=rayin[0]
         rfy=rayin[1]
+        
+        plt.plot([self.x,0],[0,1])
         plt.plot([rfx,self.x],[rfy,0])
         plt.plot(xs,ys)
         plt.gca().set_aspect('equal')
@@ -128,28 +131,14 @@ def phi_mirror(time, d=-10):
 
 #% shape defines
 #% run the sucker
-def main():
-    t= range(6,18+1)
-    d = np.linspace(xmin, xmax, 9)
-    #d= [-1]
-    for hour in t:
-        #print(phi_in(hour)*todeg)
-        for pos in d:
-            x.append(pos)
-            y.append(0)
-            #ray_in.append([xmin,pos,ymax,0])
-            ray_in.append(ray(pos,hour))
-    
-    return 1
-Mlist=[]
-for i,v in enumerate(np.linspace(xmin,xmax,5)):
-    print(v)
-    Mlist.append(mirror(pos=v,angle=v))
-    Mlist[i].plot()
 
 
 if __name__ == '__main__':
-    main()
+    Mlist=[]
+    for i,v in enumerate(np.linspace(xmin+.1,xmax-.1,8)):
+        print(v)
+        Mlist.append(mirror(pos=v))
+        Mlist[i].plot()
     #ray_in=ray_in[1:]
     #for i in ray_in:
     #    print(f'{i}')
