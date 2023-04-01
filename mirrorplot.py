@@ -4,6 +4,7 @@ depending on location relative to focalpoint
 AUTH: Diced
 DATE: 20230325
 TODO:
+    - make a single object out of a ray and mirror set
     - define shape
     - calculate output angle
     - calculate input angle
@@ -14,7 +15,6 @@ TODO:
 DONE:
     - nothing
 
-Als het goed is wel!
 
 """
 #% imports
@@ -31,6 +31,40 @@ xmax = xmin+xsize
 ysize = 3
 ymin = -0.2
 ymax = ymin+ysize
+def rot(point,alpha):
+    R=np.array([[np.cos(alpha), np.sin(alpha)],
+                [-np.sin(alpha), np.cos(alpha)]])
+    return R@point
+    
+class mirror:
+    def __init__(self, pos=None, angle = None):
+        if pos == None:
+            self.pos = 0
+        if angle == None:
+            self.angle = 0
+        self.angle = angle
+        self.x=pos
+        self.y=0
+        w=xmax/10
+        h=0.01
+        base=[-w/2,w/2,-h/2,h/2] #bl corner and tr corner
+        corners=[np.array([base[0],base[2]]),
+                 np.array([base[0],base[3]]),
+                 np.array([base[1],base[3]]),
+                 np.array([base[1],base[2]]),
+                 np.array([base[0],base[2]])]
+        self.shape=[rot(corner,self.angle) for corner in corners]
+        self.pose=self.shape+np.array([pos,0])
+    def update(self):
+        corners=self.shape
+        self.shape=[rot(corner,self.angle) for corner in corners]
+        self.pose=self.shape+np.array([pos,0])
+    def plot(self):
+        xs=[m[0] for m in self.pose]
+        ys=[m[1] for m in self.pose]
+        plt.plot(xs,ys)
+
+
 x=[]
 y=[]
 ray_in=[]
@@ -65,12 +99,12 @@ def ray(pos,hour):
     # topright coordinates
 
     phi_r=phi_in(hour)
-    print('hier', hour, pos,phi_r*todeg)
+    #print('hier', hour, pos,phi_r*todeg)
     if hour<=12:
         dx=xmin-pos
         dy=ymax
         phi_c=atan(dx,dy)
-        print(phi_c*todeg)
+        #print(phi_c*todeg)
         if phi_r < phi_c:
             xs=xmin
             ys=dx/tan(phi_r)
@@ -97,7 +131,7 @@ def main():
     d = np.linspace(xmin, xmax, 9)
     #d= [-1]
     for hour in t:
-        print(phi_in(hour)*todeg)
+        #print(phi_in(hour)*todeg)
         for pos in d:
             x.append(pos)
             y.append(0)
@@ -105,15 +139,21 @@ def main():
             ray_in.append(ray(pos,hour))
     
     return 1
+Mlist=[]
+for i,v in enumerate(np.linspace(xmin,xmax,5)):
+    print(v)
+    Mlist.append(mirror(pos=v,angle=v))
+    Mlist[i].plot()
+
 
 if __name__ == '__main__':
     main()
     #ray_in=ray_in[1:]
-    for i in ray_in:
-        print(f'{i}')
-    plt.plot(x,y,'.')
-    for ray in ray_in:
-        plt.plot(ray[0:2],ray[2:])
+    #for i in ray_in:
+    #    print(f'{i}')
+    #plt.plot(x,y,'.')
+    #for ray in ray_in:
+    #    plt.plot(ray[0:2],ray[2:])
     plt.xlim(xmin,xmax)
     plt.ylim(ymin,ymax)
     plt.show()
