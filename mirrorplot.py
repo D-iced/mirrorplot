@@ -93,19 +93,27 @@ class mirror:
                  np.array([base[0],base[2]])]
         self.shape=[rot(corner,self.angle) for corner in corners]
         self.pose=self.shape+np.array([self.x,0])
+    def __repr__(self):
+        return f'Mirror(x,y={self.x, self.y,}, phi={self.angle})'
+    
     def update(self,angle):
         corners=self.shape
+        self.angle = angle
         self.shape=[rot(corner,angle) for corner in corners]
         self.pose=self.shape+np.array([self.x,0])
     def plot(self):
+        rayin = ray(self.x,self.angle)
+        phi_out = atan(-self.x,1)
+        rayout = ray(self.x,phi_out)
+        self.update((phi_out-self.angle)/2)
         xs=[m[0] for m in self.pose]
         ys=[m[1] for m in self.pose]
-        rayin = ray(self.x,atan(self.x,1)*2)
-        rfx=rayin[0]
-        rfy=rayin[1]
-        
-        plt.plot([self.x,0],[0,1])
-        plt.plot([rfx,self.x],[rfy,0])
+        rix=rayin[0]
+        riy=rayin[1]
+        rox = rayout[0]
+        roy = rayout[1]
+        plt.plot([self.x,rox],[0,roy])
+        plt.plot([rix,self.x],[riy,0])
         plt.plot(xs,ys)
         plt.gca().set_aspect('equal')
     #reflect=np.array([1,0])
@@ -126,10 +134,10 @@ if __name__ == '__main__':
     for i,v in enumerate(np.linspace(xmin+.1,xmax-.1,8)):
         Mlist.append(mirror(pos=v, angle = phi_in(t)))
         Mlist[i].plot()
-    for t in range(7,18):
-        for m in Mlist:
-            m.update(phi_in(t))
-            m.plot()
+    #for t in range(7,18):
+    #for m in Mlist:
+    #    m.update(phi_in(t))
+    #    m.plot()
     #ray_in=ray_in[1:]
     #for i in ray_in:
     #    print(f'{i}')
