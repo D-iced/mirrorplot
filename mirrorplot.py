@@ -93,10 +93,10 @@ class mirror:
                  np.array([base[0],base[2]])]
         self.shape=[rot(corner,self.angle) for corner in corners]
         self.pose=self.shape+np.array([self.x,0])
-    def update(self):
+    def update(self,angle):
         corners=self.shape
-        self.shape=[rot(corner,self.angle) for corner in corners]
-        self.pose=self.shape+np.array([pos,0])
+        self.shape=[rot(corner,angle) for corner in corners]
+        self.pose=self.shape+np.array([self.x,0])
     def plot(self):
         xs=[m[0] for m in self.pose]
         ys=[m[1] for m in self.pose]
@@ -109,10 +109,6 @@ class mirror:
         plt.plot(xs,ys)
         plt.gca().set_aspect('equal')
     #reflect=np.array([1,0])
-    
-x=[]
-y=[]
-ray_in=[]
 
 #% function defines
 def phi_in(time):
@@ -123,22 +119,17 @@ def phi_in(time):
     clockfraction=(time-12)/24
     return tau*clockfraction
 
-def phi_out(pos):
-    return atan(pos,1)
-
-def phi_mirror(time, d=-10):
-    return (phi_in(time) + phi_out(d))/2
-
-#% shape defines
-#% run the sucker
-
 
 if __name__ == '__main__':
     Mlist=[]
+    t = 7
     for i,v in enumerate(np.linspace(xmin+.1,xmax-.1,8)):
-        print(v)
-        Mlist.append(mirror(pos=v))
+        Mlist.append(mirror(pos=v, angle = phi_in(t)))
         Mlist[i].plot()
+    for t in range(7,18):
+        for m in Mlist:
+            m.update(phi_in(t))
+            m.plot()
     #ray_in=ray_in[1:]
     #for i in ray_in:
     #    print(f'{i}')
